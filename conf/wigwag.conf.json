@@ -1,0 +1,160 @@
+{
+	"appServer" : true,
+        "logger" : { "file": "${conf}/relay_logger.conf.json" },
+	"loadApps" : [ 
+		{"classpath" : "WWWebAPI"},
+		{"classpath" : "WWMobileUI"}
+        ],	
+	"requiredServices" : [
+	     { "classpath" : "IPStack", "config" : { "wan" : "dhcp" }},
+	     { "classpath" : "HotPlug", "config" : { "verbose": true }}
+	],
+	"relay_info" : {
+		"providers" : {
+        }
+    },
+    "runtimeConfig": {
+        "appDirectories": [ "${devjs_root}/devjs-usr" , "${core}"],
+        "serviceDirectories" : [ "${core}" ],
+        "facadeDirectories": [ "${core}" ],
+        "overrideDatabase" : true,
+        "services" : {
+            "sixLBR": {
+                "typeName": "SixLBR",
+                "enabled" : true,
+                "config": { 
+                    "ifname": "Witap0",
+                    "wsnNet": "bbbb::100",
+                    "sixlbr": {
+                        "tundev": "Witap0",
+                        "use_raw_ethernet": false,
+                        "log_level": ["error"],
+                        "siodev": "ttyS2",
+			"siodev_secondary": "ttyS2",
+                        "sixBMAC": "00A5090001123456",
+                        "baudrate": 115200,
+                        "slip_delay": 0.03125,
+			"ww_encryption": true,
+                        "firmware_path_mc1322": "${devjs_root}/core/utils/node-6lbr/slip-radio_bin/",
+                        "firmware_file_prefix": "slip-radio_econotag",
+                        "reset_GPIO_path_firmware_mc1322": "/sys/class/gpio/gpio105/value",
+                        "erase_GPIO_path_firmware_mc1322": "/sys/class/gpio/gpio103/value",
+                        "nvm_data": {
+                            "channel": 12,
+			    "rpl_dio_intdoubl": 1,
+			    "rpl_dio_intmin": 12,
+			    "rpl_default_lifetime": 4,
+			    "rpl_lifetime_unit": 25,
+			    "rpl_version_id": 247
+                        }
+                    }
+                }
+            },
+            "mdns": {
+                "typeName": "MDNSService",
+                "enabled": true,
+                "config": {}
+            },
+            "ledChanger": {
+                "typeName" : "LEDChangerService",
+                "enabled": true,
+                "config": {}
+            },
+            "ipStack" : {
+                "typeName" : "IPStack",
+                 "enabled": true,
+                "config": {
+                    "wan": ["eth0", "eth1", "wlan0"],
+                    "dhcp": "on",
+                    "static": {
+                        "ipaddress":"10.10.20.31",
+                        "mask": "255.255.255.0",
+                        "gateway": "10.10.20.1"
+                    },
+                    "periodMS": 10000
+                }
+            },
+            "udpMultiplexerService": {
+                "typeName": "UDPMultiplexerService",
+                "enabled" : true,
+                "config": {
+                    "interfacePort": 3000
+                }
+            }
+        },
+        "deviceDirectories": [ "${core}" ],
+        "ruleNodeDirectories": [ "${core}" ],
+        "discovererDirectories": [ "${core}" ],
+        "apps": {
+            "api" : {
+                "classpath": "api",
+                "config": {
+                    "locationImagesDirectory": "${devjs_root}/devjs-usr/App/WWWebAPI/images"
+                 }
+            },
+            "mobileUI": {
+                "classpath": "WWMobileUI",
+                "config": { }
+            },
+            "webAPI": {
+                "classpath": "WWWebAPI",
+                "config": { 
+                    "locationImagesDirectory" : "${devjs_root}/devjs-usr/App/WWWebAPI/images"
+                }
+
+            },
+            "LogMonitor": {
+                "classpath": "LogMonitor",
+                "config": { }
+            },
+            "WWRuleUI" : {
+                "classpath": "WWRuleUI",
+                "config" : { }
+            },
+            "RelayUpdateApp" : {
+                "classpath": "RelayUpdateApp",
+                "config": { 
+                    "cloudURI": "https://cloud.wigwag.com/apps/upgrade",
+                    "stagingDirectory": "${devjs_root}/../downloads",
+                    "installDirectory": "${devjs_root}/../installs",
+                    "versionsFile": "/etc/wigwag/versions.json"
+                }
+            },
+            "RelayEventBroker" : {
+                "classpath": "RelayEventBroker",
+                "config" : { }
+            },
+            "webUI" : {
+                "classpath": "WWRelayWebUI",
+                "config" : { },
+		        "defaultApp" : true
+            }
+        },
+        "rootDiscoverers": {
+            "cloudDiscoverer": {
+                "typeName": "RuleDeviceDiscoverer",
+                "config": { },
+                "enabled": true
+            },
+            "rootUPnP":{
+                "typeName": "UPnPDiscoverer",
+                "config": { 
+                    "pollTime": 200
+                },
+                "enabled": true
+            },
+            "lifx": {                         
+                "typeName": "LIFXBulbDiscoverer",                                                       
+                "config": { },                                        
+                "enabled": true                                                               
+            },                       
+            "wwDiscoverer": {
+                "typeName": "WigWagDiscoverer",
+                "config": {
+                    "interfacePort": 3000
+                },
+                "enabled": true
+            }
+        }
+    }
+}

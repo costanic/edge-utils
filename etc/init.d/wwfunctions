@@ -1,0 +1,79 @@
+#!/bin/bash
+
+# Copyright (c) 2018, Arm Limited and affiliates.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#When sourcing this, you must have the following pre defined:
+# PROG=the name of the program your writing the init script for
+INITLOG=/wigwag/log/wwinit.log
+WIGWAGROOT=/wigwag/
+WIGWAGLOGROOT=/wigwag/log/
+THISLOG=$WIGWAGLOGROOT/$PROG".log"
+
+
+wwfunctions_init(){
+	PROG="$1"
+	THISLOG="$WIGWAGLOGROOT/$PROG"
+}
+
+_initlog(){
+	echo -e "$(date -u): $1" >> $INITLOG
+}
+
+_startCalled(){
+	_initlog "Service $PROG: start called"
+}
+
+_stopCalled(){
+	_initlog "Service $PROG: stop called"
+}
+
+_restartCalled(){
+	_initlog "Service $PROG: restart called"
+	}
+
+_statusCalled(){
+	_initlog "Service $PROG: status called"
+}
+
+_log() {
+    echo -e "$(date -u): $1" >> $THISLOG
+}
+
+_slog(){
+	echo -e "$(date -u): $1" >> $INITLOG
+	echo -e "$(date -u): $1" >> $THISLOG
+	echo -e "$1"
+}
+
+_throw_warning(){
+    warning
+    _slog " $PROG $1" 
+}
+
+_throw_success(){
+    success
+    _slog " $PROG $1" 
+}
+
+_throw_failure(){
+    failure
+    _slog " $PROG $1" 
+}
+
+_throw_passed(){
+    passed
+    _slog  " $PROG $1" 
+}

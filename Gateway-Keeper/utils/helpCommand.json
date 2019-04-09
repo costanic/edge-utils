@@ -1,0 +1,46 @@
+{
+	"getRelay": {
+        "Usage": "getRelay [relayID] \n\t\t Example: getRelay WDRL00000M ",
+        "Description": "it returns a object with relayID, cloudURL, build_version and IP for a single relay."
+    },
+    "getAllRelays": {
+        "Usage": "getAllRelays \n\t\t Example: getAllRelays",
+        "Description": "it returns a object with relayID, cloudURL, build_version and IP"
+    },
+    "upgradeRelayWithUrl": {
+        "Usage": "upgradeRelay [relayID] [build_version]\n\t\t Example: upgradeRelay WDRL00000M  102.0.377",
+        "Description": "it start to download a build in a gateway and upgrade them."
+    },
+    "upgradeAllRelaysWithUrl": {
+        "Usage": "upgradeAllRelays \n\t\t Example: getAllRelays",
+        "Description": "it start to download a build in all gateway and upgrade them."
+    },
+    "getUpgrade": {
+        "Usage": "getUpgrade [relayID] \n\t\t Example: getUpgrade WDRL00000M",
+        "Description": "it returns the status of download build in a gateway."
+    },
+    "getAllUpgrade": {
+        "Usage": "getAllUpgrade \n\t\t Example: getAllUpgrade",
+        "Description": "t returns the status of download build in all gateway"
+    },
+    "upgradeGateway": {
+        "Usage":"copyBuildAndUpgrade [all/relayID] [all/cloudbasename] [build_version] \n\t\t Example: copyBuildAndUpgrade all dev 102.0.389",
+        "Description": "scp copy a build to gateways and start upgrade"
+    },
+    "downloadBuild": {
+        "Usage":"downloadBuild [build_version] \n\t\t Example: downloadBuild 102.0.377",
+        "Description": "download a build in your PC"
+    },
+    "clearBuild": {
+        "Usage":"clearBuild \n\t\t Example: clearBuild ",
+        "Description": "clear out all the builds in build folder"
+    },
+    "runCommandOnGW": {
+        "Usage": "runCommandOnGW [relayID/all] [command to be run] \n\t\t Example: runCommandOnGW WDRL00000M info",
+        "Description": "run command to the gateway"
+    },
+    "uploadClientToGW": {
+        "Usage": "uploadClientToGW \n\t\t Example : uploadClientToGW",
+        "Description": "start client to all gateways in the network"
+    }
+}
