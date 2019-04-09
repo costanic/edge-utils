@@ -6,7 +6,7 @@
 - Make sure you edit the check.json file according to the requirements
 
 ## Setup
-- Start the edge-gw-provisioning-tool on a machine. Refer to this link [https://github.com/WigWagCo/edge-gw-provisioning-tool]
+- Start the edge-gw-provisioning-tool on a machine. Refer to this link [https://github.com/armPelionEdge/edge-gw-provisioning-tool]
 - Get into the edge gateway
 - Go to the path
     `cd /wigwag/wwrelay-utils/debug_scripts/tools`

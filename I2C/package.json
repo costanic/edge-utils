@@ -14,7 +14,7 @@
     "execSync": "~1.0.2",
     "flat": "~1.5.1",
     "handlebars": "4.0.5",
-    "i2c": "git://github.com/WigWagCo/node-i2c",
+    "i2c": "git://github.com/armPelionEdge/node-i2c",
     "jsonminify": "^0.2.3",
     "linux-mountutils": "^1.0.0",
     "mkdirp": "^0.5.1",

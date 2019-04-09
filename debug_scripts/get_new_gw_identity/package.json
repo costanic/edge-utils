@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/WigWagCo/wwrelay-utils/tree/development/debug_scripts/tools"
+    "url": "https://github.com/armPelionEdge/edge-utils/tree/development/debug_scripts/tools"
   },
   "author": "Ayush Gupta <ayush.gupta2@arm.com> (http://www.arm.com/)",
   "license": "ISC",

@@ -7,7 +7,7 @@ Always run in super user mode
 
 ## Install
 ```
-git clone https://github.com/WigWagCo/wwrelay-utils.git
+git clone https://github.com/armPelionEdge/edge-utils.git
 cd wwrelay-utils
 git checkout development
 cd Gateway-keeper

@@ -25,7 +25,7 @@ const execSync = require('child_process').execSync;
 const semver = require('semver')
 const request = require('request')
 const os = require('os');
-const WigWagAuthorizer = require('wigwag-authorizer');
+const WigWagAuthorizer = require('edge-authorizer');
 
 /*
 process command- bash to json parse 
