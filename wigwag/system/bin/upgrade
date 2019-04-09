@@ -34,9 +34,12 @@ source ccommon.sh nofunc
 source /wigwag/system/lib/bash/array.sh
 
 
-cpu=$(cat /proc/cpuinfo | grep Hardware | awk '{print $5}')
+cpu=$(cat /proc/cpuinfo | grep Hardware | awk '{print $5$3}')
+revision=$(cat /proc/cpuinfo | grep Revision | awk '{print $3}')
 if [[ $cpu = "(A20)" ]]; then
 	board=cubietruck
+elif [ $cpu = "BCM2835" ] && [ $revision = "a020d3" ]; then #Raspberry Pi 3B+ revision and hardware
+	board=rpi
 else
 	board=""
 	echo "board not detected.  Got an error here"

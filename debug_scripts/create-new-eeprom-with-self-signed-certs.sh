@@ -30,6 +30,7 @@ error () {
 
 SCRIPT_DIR="/wigwag/wwrelay-utils/debug_scripts"
 I2C_DIR="/wigwag/wwrelay-utils/I2C"
+export NODE_PATH="/wigwag/devicejs-core-modules/node_modules/"
 
 cleanup () {
 	cd $SCRIPT_DIR
@@ -93,11 +94,25 @@ readEeprom() {
 	source ./old_eeprom.sh
 }
 
+findGatewayServiceAddressFromMDS() {
+	if [[ $lwm2mserveruri = *"mds-integration-lab"* ]]; then
+		gatewayAddress="https://gateways.mbedcloudintegration.net"
+	elif [[ $lwm2mserveruri = *"mds-systemtest"* ]]; then
+		gatewayAddress="https://gateways.mbedcloudstaging.net"
+	elif [[ $lwm2mserveruri = *"lwm2m.us-east-1"* ]]; then
+		gatewayAddress="https://gateways.us-east-1.mbedcloud.com"
+	elif [[ $lwm2mserveruri = *"lwm2m.ap-northeast-1"* ]]; then
+		gatewayAddress="https://gateways.ap-northeast-1.mbedcloud.com"
+	else
+		gatewayAddress="https://unknown.mbedcloud.com"
+	fi
+}
+
 burnEeprom() {
     cd $I2C_DIR
     node writeEEPROM.js $eeprom_file
     if [[ $? != 0 ]]; then
-        echo "Failed to write eeprom. Trying again in 5 seconds..."
+        output "Failed to write eeprom. Trying again in 5 seconds..."
         sleep 5
         burnEeprom
     fi
@@ -111,7 +126,7 @@ factoryReset() {
 
 resetDatabase() {
 	cd $SCRIPT_DIR
-	echo "Deleting gateway database"
+	output "Deleting gateway database"
 	rm -rf /userdata/etc/devicejs/db
 }
 
@@ -125,7 +140,18 @@ execute () {
 	OU=$(echo $lwm2mserveruri | cut -d'=' -f 2 | cut -d'&' -f 1)
 	if [[ $status == "connected" ]]; then
 		output "Edge-core is connected..."
+		# Check if identity file is present. If not then assume we are not in factory mode (either BYOC or developer)
+		# auto create gateway identity
 
+		if [ ! -f /userdata/edge_gw_config/identity.json ]; then
+			output "Creating developer self-signed certificate!"
+			findGatewayServiceAddressFromMDS
+			cd /wigwag/wwrelay-utils/debug_scripts/get_new_gw_identity/developer_gateway_identity
+			./bin/create-dev-identity -g $gatewayAddress -p DEV0
+			mkdir /userdata/edge_gw_config
+			cp identity.json /userdata/edge_gw_config/identity.json
+			cp identity.json /userdata/edge_gw_config/identity_original.json
+		fi
 		if [ -f /userdata/edge_gw_config/identity.json ]; then
 			output "/userdata/edge_gw_config/identity.json exists! Checking if deviceID is same..."
 			if [ ! -f /userdata/edge_gw_config/identity.sh ]; then
@@ -153,8 +179,8 @@ execute () {
 			createDeviceCertificate
 			if [[ $? -eq 0 ]]; then
 				# Stop edge-core before taking a snapshot of mcc_config
-				echo "Stopping edge core..."
-				kill $(ps aux | grep -E 'edge-core|edge_core' | awk '{print $2}');
+				#output "Stopping edge core..."
+				#kill $(ps aux | grep -E 'edge-core|edge_core' | awk '{print $2}');
 
 				resetDatabase
 				output "Creating new eeprom with new self signed certificate..."
