@@ -31,6 +31,7 @@ program
     .option('-g, --gatewayServicesAddress []', 'The gateway services API address')
     .option('-a, --apiServerAddress []', 'API server address')
     .option('-p, --serialNumberPrefix []', 'Serial Number Prefix')
+    .option('-o, --organizationUnit []', 'Account ID')
 	.parse(process.argv);
 
 var validHostURI = /^(https\:\/\/)?((?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*(?:[A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]))$/
@@ -185,7 +186,7 @@ const run = async() => {
 
     let currentSerialNumber = crypto.randomBytes(2).readUInt16BE(0, true);
     identity_obj.serialNumber = IDGenerator.SerialIDGenerator(program.serialNumberPrefix || 'SOFT', currentSerialNumber, currentSerialNumber + 1)
-    identity_obj.OU = uuid.v4().replace(/-/g, "")
+    identity_obj.OU = program.organizationUnit || uuid.v4().replace(/-/g, "")
     identity_obj.deviceID = uuid.v4().replace(/-/g, "")
     identity_obj.hardwareVersion = "rpi3bplus"
     identity_obj.radioConfig = "00"

@@ -147,7 +147,7 @@ execute () {
 			output "Creating developer self-signed certificate!"
 			findGatewayServiceAddressFromMDS
 			cd /wigwag/wwrelay-utils/debug_scripts/get_new_gw_identity/developer_gateway_identity
-			./bin/create-dev-identity -g $gatewayAddress -p DEV0
+			./bin/create-dev-identity -g $gatewayAddress -p DEV0 -o $OU
 			mkdir /userdata/edge_gw_config
 			cp identity.json /userdata/edge_gw_config/identity.json
 			cp identity.json /userdata/edge_gw_config/identity_original.json
