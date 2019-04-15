@@ -28,9 +28,9 @@ function run_edge_core() {
                 $START_EDGE_CORE &
                 sleep 5
                 kill $(ps aux | grep 'mbed-devicejs-bridge' | awk '{print $2}');
-                kill $(ps aux | grep '/wigwag/mbed/pt-example' | awk '{print $2}');
+                kill -9 $(ps aux | grep '/wigwag/mbed/pt-example' | awk '{print $2}');
                 sleep 5
-                /wigwag/mbed/pt-example -n pt-example --endpoint-postfix=-$(cat /sys/class/net/eth0/address) >> /var/log/pt-example.log 2>&1
+                /wigwag/mbed/pt-example -n pt-example --endpoint-postfix=-$(cat /sys/class/net/eth0/address) >> /var/log/pt-example.log 2>&1 &
                 # kill $(ps aux | grep '/wigwag/mbed/blept-example' | awk '{print $2}');
                 # sleep 5
                 # /etc/init.d/mept-ble start
@@ -40,7 +40,7 @@ function run_edge_core() {
             if ! pgrep -x "pt-example" > /dev/null
             then
                 sleep 30
-                /wigwag/mbed/pt-example -n pt-example --endpoint-postfix=-$(cat /sys/class/net/eth0/address) >> /var/log/pt-example.log 2>&1
+                /wigwag/mbed/pt-example -n pt-example --endpoint-postfix=-$(cat /sys/class/net/eth0/address) >> /var/log/pt-example.log 2>&1 &
             fi
         fi
         sleep 5
