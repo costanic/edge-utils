@@ -369,6 +369,28 @@ jobs:
           "hideTemplates": [ "VideoCamera" ],
           "logLevel": 1
         }
+   - job: "zigbeeHA"
+     immutable: true  # don't store in DB
+     exec_cmd: "${thisdir}/../zigbeeHA"
+     container_template: "deviceJS_process"
+     composite_id: "zigbee"
+     restart: true
+     restart_limit: 5000
+     restart_pause: 90
+     config: |
+        {
+          "siodev":"/dev/ttyUSB0",
+          "devType":0,
+          "newNwk":false,
+          "channelMask":25,
+          "baudRate":115200,
+          "log_level":1,
+          "networkRefreshDuration":17000,
+          "panIdSelection":"randomInRange",
+          "panId":23,
+          "platform":"",
+          "logLevel": 2 //Available- info- 2, debug- 3, trace- 4, error- 0, warn- 1
+        }
    - job: "OnsiteEnterpriseServer"
      immutable: true  # don't store in DB
      exec_cmd: "${thisdir}/../../wigwag-core-modules/onsite-enterprise-server"
