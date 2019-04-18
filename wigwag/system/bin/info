@@ -189,6 +189,7 @@ firmware(){
 	fi
 	mp=$(mount | grep factory | head -1 | awk -F "/" '{print $3}' | awk -F " " '{print $1}');mp=${mp::-2}p1;
 	out=$(fdisk -l /dev/$USEDMMC"p1" | xargs | awk '{print $3}');
+	out=${out%.*}
 	Pschema="4Gb"
 	if [[ $out -eq 50 ]]; then
 		Pschema="8Gb"
