@@ -82,6 +82,18 @@ _percentage(){
 	echo $(bc <<< "scale=2; $1*100/$2")
 }
 
+function jsonParse()
+{
+    echo $1 | \
+    sed -e 's/[{}]/''/g' | \
+    sed -e 's/", "/'\",\"'/g' | \
+    sed -e 's/","/'\"---BREAK---\"'/g' | \
+    awk -F=':' -v RS='---BREAK---' "\$1~/\"$2\"/ {print}" | \
+    sed -e "s/\"$2\"://" | \
+    tr -d "\n\t" | \
+    sed -e 's/^"//'  -e 's/"$//'
+}
+
 MEM=$(grep MemTotal /proc/meminfo | awk '{print $2}')
 MEM=$(_div1000b "$MEM")
 AVAILABLE=$(free -m | awk 'NR==2{printf $7}')
@@ -213,10 +225,15 @@ account(){
 		SN=$serialNumber
 		DID=$deviceID
 		CLOUDURL=$cloudAddress
+		EDGECORESTATUS=$(curl -s http://localhost:9101/status)
+		AccountID=$(jsonParse $EDGECORESTATUS account-id)
+		Status=$(jsonParse $EDGECORESTATUS status)
 		_placeTitle "Account Infomation"
 		_placeLine "  - Serial Number:" "$SN"
 		_placeLine "  - Device ID:" "$DID"
 		_placeLine "  - Cloud Server:" "$CLOUDURL"
+		_placeLine "  - AccountID:" "$AccountID"
+		_placeLine "  - Status:" "$Status"
 	else
 		SN=$relayID
 		PAIRINGCODE=$pairingCode
