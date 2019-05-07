@@ -25,11 +25,8 @@ function acquireNewLease() {
             if ! pgrep -f "udhcpc" > /dev/null
             then
                 echo "Starting udhcpc"
+                rm -rf /var/run/acquireNewLease
                 udhcpc eth0 &
-                if [ $? -eq 0 ]; then
-                    echo "Hurray! successfully acquired new IP."
-                    rm -rf /var/run/acquireNewLease
-                fi
             else
                 # If udhcpc is running then wait then let if finish before killing it
                 # 25 * 5 = 125 seconds (~2 mins) has lapsed and udhcpc is still running
