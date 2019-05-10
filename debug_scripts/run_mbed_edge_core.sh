@@ -16,9 +16,8 @@
 # limitations under the License.
 
 START_EDGE_CORE="/etc/init.d/mbed-edge-core start"
-START_RELAY_TERM="/etc/init.d/relayterm start"
 
-function run_edge_core() {
+functin run_edge_core() {
 	while true; do
         if ! pgrep -x "edge-core" > /dev/null
         then
@@ -48,21 +47,4 @@ function run_edge_core() {
 	done
 }
 
-# Monitor the relay term process, untill its added to maestro
-function run_relay_term() {
-    while true; do
-        if ! pgrep -f "relay-term" > /dev/null
-        then
-            # Only start edge-core if maestro is running
-            if pgrep "maestro" > /dev/null; then
-                # Give enough time for maestro to setup keystore
-                sleep 15
-                $START_RELAY_TERM &
-            fi
-        fi
-        sleep 10
-    done
-}
-
-run_relay_term
 run_edge_core
