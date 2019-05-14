@@ -17,7 +17,7 @@
 
 START_EDGE_CORE="/etc/init.d/mbed-edge-core start"
 
-functin run_edge_core() {
+function run_edge_core() {
 	while true; do
         if ! pgrep -x "edge-core" > /dev/null
         then
