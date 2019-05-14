@@ -20,5 +20,5 @@ killall -9 node
 killall -9 devicedb
 killall maestro
 sleep 5
-/etc/init.d/devicejs start
+/etc/init.d/maestro.sh start
 /etc/init.d/relayterm start
