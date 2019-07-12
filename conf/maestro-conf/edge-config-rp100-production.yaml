@@ -20,14 +20,6 @@ platform_readers:
   - platform: "fsonly"
     params:
       identityPath: "/userdata/edge_gw_config/identity.json"
-# relaymq:
-#     host: "{{ARCH_relaymqHost}}"
-#     logging: true
-#     client_cert: "{{ARCH_CLIENT_CERT_PEM}}"
-#     client_key: "{{ARCH_CLIENT_KEY_PEM}}"
-#     ---Only specify server_name if the RootCA is not in the default list
-#     This is only a valid option if you are not using a well-known CA
-#    server_name: "devcloud.wigwag.io"
 var_defs:
    - key: "TMP_DIR"
      value: "/tmp"
@@ -65,11 +57,9 @@ sys_stats: # system stats intervals
     every: "30s"
     name: disk
 mdns:
-  # disable: true
   static_records:
    - name: "WigWagRelay"
      service: "_wwservices._tcp"  # normally something like https or ftp
-     # domain: "local"     # local is default
      interfaces: "eth0"
      not_interfaces: "Witap0"
      port: 3131
@@ -78,7 +68,6 @@ mdns:
      hostname: "wigwaggateway"
    - name: "WigWagRelay_{{ARCH_SERIAL_NUMBER}}"
      service: "_wwservices._tcp"  # normally something like https or ftp
-     # domain: "local"     # local is default
      interfaces: "eth0"
      not_interfaces: "Witap0"
      port: 3131
@@ -86,8 +75,6 @@ mdns:
       - "wwid={{ARCH_SERIAL_NUMBER}}"
      hostname: "{{ARCH_SERIAL_NUMBER}}"
 symphony:
-# symphony system management APIs
-    # defaults to 10:
     sys_stats_count_threshold: 15     # send if you have 15 or more stats queued
     sys_stats_time_threshold: 120000  # every 120 seconds send stuff, no matter what
     client_cert: "{{ARCH_CLIENT_CERT_PEM}}"
@@ -126,58 +113,6 @@ targets:
      filters:
        - levels: all
          format_pre: "{"     # you will wrap this output with { "log": [ OUTPUT ] }
-#   - file: "{{TMP_DIR}}/maestro.log"
-   # - TTY: "console"
-   #   rotate:
-   #       max_files: 10
-   #       max_file_size: 10000
-   #       max_total_size: 100000
-   #       rotate_on_start: true
-   #   delim: "\n"
-   #   format_time: "[%ld:%d] "
-   #   format_level: "<%s> "
-   #   format_tag: "{%s} "
-   #   format_origin: "(%s) "
-   #   filters:
-   #     - levels: error
-   #       format_pre: "\u001B[31m"
-   #       format_post: "\u001B[39m"
-   #     - levels: debug
-   #       format_pre: "\u001B[36m"
-   #       format_post: "\u001B[39m"
-# JSON file
-   # - file: /tmp/json-maestro.log
-   #   rotate:
-   #       max_files: 10
-   #       max_file_size: 10000
-   #       max_total_size: 100000
-   #       rotate_on_start: true
-   #   delim: "],\n"
-   #   format_time: "{\"time\":\"%ld:%d\"}, "
-   #   format_level: "{\"level\":\"%s\"}, "
-   #   format_tag: "{\"tag\":\"%s\"}, "
-   #   format_origin: "{\"origin\":\"%s\"}, "
-   #   format_pre_msg: "{ \"msg\":\""
-   #   format_post: "\"}"
-   #   flag_json_escape_strings: true
-   #   filters:
-   #     - levels: all
-   #       format_pre: "["     # you will wrap this output with { "log": [ OUTPUT ] }
-
-
-
-#         format_post: "]}"  # I am not sure if this works
-   # - name: "toCloud"  # this is a special target for sending to the cloud. It must send as a JSON
-   #   format_time: "\"time\":\"%ld:%d\", "
-   #   format_level: "\"level\":\"%s\", "
-   #   format_tag: "\"tag\":\"%s\", "
-   #   format_origin: "\"origin\":\"%s\", "
-   #   format_pre_msg: "\"msg\":\""
-   #   format_post: "\"}"
-   #   flag_json_escape_strings: true
-   #   filters:
-   #     - levels: all
-   #       format_pre: "{"     # you will wrap this output with { "log": [ OUTPUT ] }
 static_file_generators:
    - name: "devicejs"
      template_file: "/wigwag/wwrelay-utils/conf/maestro-conf/template.devicejs.conf"
@@ -212,235 +147,4 @@ static_file_generators:
    - name: "ca_chain"
      template: "{{ARCH_CA_CHAIN_CERT_PEM}}"
      output_file: "{{SSL_CERTS_PATH}}/ca-chain.cert.pem"
-container_templates:
-   - name: "deviceJS_process"
-     immutable: true  # don't store in DB
-     depends_on:
-        - "devicejs"
-     cgroup:                 # will implement later
-        mem_limit: 10000000
-     die_on_parent_death: true
-     inherit_env: true
-     add_env:
-        - "LD_PRELOAD=/usr/lib/libcrypto.so.1.0.2"
-        - "DEVJS_ROOT={{DEVICEJS_ROOT}}"
-        - "DEVJS_CONFIG_FILE=/wigwag/etc/devicejs/devicejs.conf"
-        - "NODE_PATH={{WIGWAG_NODE_PATH}}"
-     exec_cmd: "{{NODE_EXEC}}"        # will use PATH if not absolute path (as per execvp())
-     send_composite_jobs_to_stdin: true
-     send_grease_origin_id: true
-     exec_pre_args:
-        - "--max-old-space-size=128"
-        - "--max-semi-space-size=1"
-        - "{{MAESTRO_RUNNER_DIR}}/index.js"
-     composite_config: >
-        {
-           "debug":true
-        }
-   - name: "node_process"
-     die_on_parent_death: true
-     immutable: true  # don't store in DB
-     cgroup:                 # will implement later
-        mem_limit: 10000000
-     inherit_env: true
-     exec_cmd: "{{NODE_EXEC}}"        # will use PATH if not absolute path (as per execvp())
-     exec_pre_args:
-        - "--max-old-space-size=128"
-        - "--max-semi-space-size=1"
-jobs:
-   - job: "devicedb"
-     immutable: true
-     die_on_parent_death: true
-     exec_cmd: "/wigwag/system/bin/devicedb"
-     restart: true
-     restart_limit: 5000
-     restart_pause: 1
-     exec_args:
-        - "start"
-        - "-conf=/wigwag/etc/devicejs/devicedb.yaml"
-   - job: "devicejs"
-     defer_running_status: 30000   # waits 8 seconds before marking this Job as RUNNING, which delays all dependencies
-     depends_on:
-        - "devicedb"
-     container_template: "node_process"
-     immutable: true
-     die_on_parent_death: true
-     env:
-        - "LD_PRELOAD=/usr/lib/libcrypto.so.1.0.2"
-        - "NODE_PATH={{DEVICEJS_ROOT}}/node_modules"
-        - "DEVJS_LOGGER={\"modulepath\":\"{{WIGWAG_NODE_PATH}}/grease-log-client\",\"type\":\"global\"}"
-     exec_cmd: "{{DEVICEJS_ROOT}}/src/runtime/start"
-     restart: true
-     restart_limit: 5000
-     restart_pause: 10
-     exec_args:
-        - "--config=/wigwag/etc/devicejs/devicejs.conf"
-   - job: "MbedDeviceJSBridge"
-     immutable: true  # don't store in DB
-     exec_cmd: "${thisdir}/../../mbed/mbed-devicejs-bridge"
-     container_template: "deviceJS_process"
-     composite_id: "mbed"
-     restart: true
-     restart_limit: 5000
-     restart_pause: 90
-     config: |
-        {
-            "debug": true,
-            "mapUnplacedDevices": true,
-            "ignoreDevicesById" : [],
-            "relayID": "{{ARCH_SERIAL_NUMBER}}",
-            "mbedAPIKey": "ak_1MDE1ZDUwYTFmYmM2MDI0MjBhMDExMTA5MDAwMDAwMDA015e967fe74802420a01390300000000aJOhYRqzTXINzN9Aw2OkV5WrG0YwgmKS",
-            "spawnEdgeCore": false,
-            "edgeExecCmd": ["/apps/mbed-cloud-edge-confidential-w/build/mcc-linux-x86/existing/bin/edge-core","/tmp/edge.sock","9101"],
-            "ssl":{
-              "key":"{{SSL_CERTS_PATH}}/client.key.pem",
-              "cert":"{{SSL_CERTS_PATH}}/client.cert.pem"
-            }
-        }
-   - job: "core-interfaces"
-     immutable: true  # don't store in DB
-     exec_cmd: "${thisdir}/../core-interfaces"
-     container_template: "deviceJS_process"
-     composite_id: "all-modules"
-     restart: true
-     restart_limit: 5000
-     restart_pause: 90
-     config: |
-        {}
-   - job: "RelayStatsSender"
-     immutable: true  # don't store in DB
-     exec_cmd: "${thisdir}/../../wigwag-core-modules/RelayStatsSender"
-     container_template: "deviceJS_process"
-     composite_id: "user"
-     restart: true
-     restart_limit: 5000
-     restart_pause: 90
-     config: |
-        {
-          "cloudAddress":"{{ARCH_GW_SERVICES_URL}}",
-          "relayID":"{{ARCH_SERIAL_NUMBER}}",
-          "ssl":{
-              "key":"{{SSL_CERTS_PATH}}/client.key.pem",
-              "cert":"{{SSL_CERTS_PATH}}/client.cert.pem",
-              "ca":[
-                  "{{SSL_CERTS_PATH}}/ca.cert.pem",
-                  "{{SSL_CERTS_PATH}}/intermediate.cert.pem"
-              ]
-          },
-          "versionsFile":"{{RELAY_VERSIONS_FILE}}",
-          "factoryVersionsFile": "{{FACTORY_VERSIONS_FILE}}",
-          "userVersionsFile": "{{USER_VERSIONS_FILE}}",
-          "upgradeVersionsFile": "{{UPGRADE_VERSIONS_FILE}}",
-          "relayInfo": {
-              "serialNumber": "{{ARCH_SERIAL_NUMBER}}",
-              "hardwareVersion": "{{ARCH_HARDWARE_VERSION}}",
-              "radioConfig": "{{ARCH_RADIO_CONFIG}}",
-              "ledConfig": "{{ARCH_LED_COLOR_PROFILE}}",
-              "cloud": "{{ARCH_GW_SERVICES_URL}}",
-              "ethernetMac": "{{ARCH_ETHERNET_MAC}}"
-          }
-        }
-   - job: "LEDController"
-     immutable: true  # don't store in DB
-     exec_cmd: "${thisdir}/../../wigwag-core-modules/LEDController"
-     container_template: "deviceJS_process"
-     composite_id: "core"
-     restart: true
-     restart_limit: 5000
-     restart_pause: 90
-     config: |
-        {
-          "ledBrightness": 5,
-          "heartbeatBrightness": 2,
-          "ledColorProfile":"{{ARCH_LED_COLOR_PROFILE}}",
-          "ledDriverSocketPath": "/var/deviceOSkeepalive"
-        }
-   - job: "VirtualDeviceDriver"
-     immutable: true  # don't store in DB
-     exec_cmd: "${thisdir}/../../wigwag-core-modules/VirtualDeviceDriver"
-     container_template: "deviceJS_process"
-     composite_id: "user"
-     restart: true
-     restart_limit: 5000
-     restart_pause: 90
-     config: |
-        {
-          "deviceControllersDirectory": "templates",
-          "hideTemplates": [ "VideoCamera" ],
-          "logLevel": 1
-        }
-   - job: "OnsiteEnterpriseServer"
-     immutable: true  # don't store in DB
-     exec_cmd: "${thisdir}/../../wigwag-core-modules/onsite-enterprise-server"
-     container_template: "deviceJS_process"
-     composite_id: "user"
-     restart: true
-     restart_limit: 5000
-     restart_pause: 90
-     config: |
-        {
-          "prodPort": "3131",
-          "modelDefinitions": "/api/models",
-          "logRequests": false,
-          "logLevel": 2
-        }
-   - job: "DevStateManager"
-     immutable: true  # don't store in DB
-     exec_cmd: "${thisdir}/../../wigwag-core-modules/DevStateManager"
-     container_template: "deviceJS_process"
-     composite_id: "core"
-     restart: true
-     restart_limit: 5000
-     restart_pause: 90
-     config: |
-        {
-          "logLevel": 1,
-          "pollingResolution": 500,
-          "defaultPollingRate": 51000,
-          "maxPollingCycles": 65535,
-          "pollingSchemes": {
-              "fast": {
-                  "interval": 21500,
-                  "interfaces": [
-                      "Facades/HasTemperature",
-                      "Facades/ThermostatGStatus",
-                      "Facades/ThermostatSupplyTemperature",
-                      "Facades/ThermostatReturnTemperature",
-                      "Facades/ThermostatW1Status",
-                      "Facades/ThermostatW2Status",
-                      "Facades/ThermostatY1Status",
-                      "Facades/ThermostatY2Status"
-                  ]
-              },
-              "medium": {
-                  "interval": 293500,
-                  "interfaces": [
-                      "Facades/ThermostatMode",
-                      "Facades/OccupiedCoolTemperatureLevel",
-                      "Facades/OccupiedHeatTemperatureLevel",
-                      "Facades/UnoccupiedCoolTemperatureLevel",
-                      "Facades/UnoccupiedHeatTemperatureLevel",
-                      "Facades/ThermostatFanMode",
-                      "Facades/OccupancyMode"
-                  ]
-              },
-              "slow": {
-                  "interval": 900000,
-                  "interfaces": [
-                  ]
-              },
-              "never": {
-                  "interval": 0,
-                  "interfaces": [
-                      "Facades/KeypadLockLevel",
-                      "Facades/TemperatureDisplayMode",
-                      "Facades/ThermostatDeadband",
-                      "Facades/Humidity",
-                      "Facades/HasMotion",
-                      "Facades/UnoccupiedAutoTemperatureLevel",
-                      "Facades/OccupiedAutoTemperatureLevel"
-                  ]
-              }
-          }
-        }
 config_end: true
