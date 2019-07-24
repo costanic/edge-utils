@@ -6,7 +6,7 @@ configDBPath: /snap/pelion-edge/current/userdata/etc/maestroConfig.db
 clientId: "{{ARCH_SERIAL_NUMBER}}"
 watchdog:
     path: "/snap/pelion-edge/current/wigwag/system/lib/rp100wd.so"
-    opt1: "/var/deviceOSkeepalive"
+    opt1: "/var/lib/pelion-edge/deviceOSkeepalive"
     opt2: "30"
 network:
     interfaces:
@@ -353,7 +353,7 @@ jobs:
           "ledBrightness": 255,
           "heartbeatBrightness": 128,
           "ledColorProfile":"{{ARCH_LED_COLOR_PROFILE}}",
-          "ledDriverSocketPath": "/var/deviceOSkeepalive"
+          "ledDriverSocketPath": "/var/lib/pelion-edge/deviceOSkeepalive"
         }
    - job: "VirtualDeviceDriver"
      immutable: true  # don't store in DB
