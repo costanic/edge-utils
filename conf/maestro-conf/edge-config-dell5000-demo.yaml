@@ -2,10 +2,10 @@ unixLogSocket: /tmp/grease.socket
 sysLogSocket: /dev/log
 linuxKernelLog: true
 httpUnixSocket: /tmp/maestroapi.sock
-configDBPath: {{SNAP_DATA}}/userdata/etc/maestroConfig.db
+configDBPath: /var/snap/pelion-edge/current/userdata/etc/maestroConfig.db
 clientId: "{{ARCH_SERIAL_NUMBER}}"
 watchdog:
-    path: "{{SNAP}}/wigwag/system/lib/rp100wd.so"
+    path: "/snap/pelion-edge/current/wigwag/system/lib/rp100wd.so"
     opt1: "/var/lib/pelion-edge/deviceOSkeepalive"
     opt2: "30"
 network:
@@ -19,7 +19,7 @@ processes:
 platform_readers:
   - platform: "fsonly"
     params:
-      identityPath: "{{SNAP_DATA}}/userdata/edge_gw_config/identity.json"
+      identityPath: "/var/snap/pelion-edge/current/userdata/edge_gw_config/identity.json"
 # relaymq:
 #     host: "{{ARCH_relaymqHost}}"
 #     logging: true
