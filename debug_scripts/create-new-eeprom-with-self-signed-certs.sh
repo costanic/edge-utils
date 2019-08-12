@@ -46,17 +46,10 @@ cleanup () {
 }
 
 getEdgeStatus() {
-  cd $SCRIPT_DIR
-  edgestatusreq=$(curl localhost:9101/status)
-  stat=$(echo "$edgestatusreq")
-  echo $stat > edgestatus.json
-}
-
-convertStatusToBash() {
-  cd $SCRIPT_DIR
+  curl localhost:9101/status > $SCRIPT_DIR/edgestatus.json
   PATH=$BASHLIB_DIR:$PATH $BIN_DIR/json2sh \
-    edgestatus.json edgestatus.sh
-  source ./edgestatus.sh
+    edgestatus.json $SCRIPT_DIR/edgestatus.sh
+  source $SCRIPT_DIR/edgestatus.sh
 }
 
 createRootPrivateKey() {
@@ -246,5 +239,4 @@ execute () {
 }
 
 getEdgeStatus
-convertStatusToBash
 execute
