@@ -29,11 +29,12 @@ error () {
 	exit 1
 }
 
-BIN_DIR="/wigwag/system/bin"
-BASHLIB_DIR="/wigwag/system/lib/bash"
-SCRIPT_DIR="/wigwag/wwrelay-utils/debug_scripts"
-I2C_DIR="/wigwag/wwrelay-utils/I2C"
-export NODE_PATH="/wigwag/devicejs-core-modules/node_modules/"
+WIGWAG_ROOT=${1:-"/wigwag"}
+BIN_DIR="$WIGWAG_ROOT/system/bin"
+BASHLIB_DIR="$WIGWAG_ROOT/system/lib/bash"
+SCRIPT_DIR="$WIGWAG_ROOT/wwrelay-utils/debug_scripts"
+I2C_DIR="$WIGWAG_ROOT/wwrelay-utils/I2C"
+export NODE_PATH="$WIGWAG_ROOT/devicejs-core-modules/node_modules/"
 
 cleanup () {
   cd $SCRIPT_DIR
