@@ -29,6 +29,8 @@ error () {
 	exit 1
 }
 
+BIN_DIR="/wigwag/system/bin"
+BASHLIB_DIR="/wigwag/system/lib/bash"
 SCRIPT_DIR="/wigwag/wwrelay-utils/debug_scripts"
 I2C_DIR="/wigwag/wwrelay-utils/I2C"
 export NODE_PATH="/wigwag/devicejs-core-modules/node_modules/"
@@ -51,7 +53,7 @@ getEdgeStatus() {
 
 convertStatusToBash() {
   cd $SCRIPT_DIR
-  PATH=/wigwag/system/lib/bash:$PATH /wigwag/system/bin/json2sh \
+  PATH=$BASHLIB_DIR:$PATH $BIN_DIR/json2sh \
     edgestatus.json edgestatus.sh
   source ./edgestatus.sh
 }
@@ -128,7 +130,7 @@ readEeprom() {
 	cd $SCRIPT_DIR
 	output "Reading existing eeprom..."
 	cp /userdata/edge_gw_config/identity.json old_eeprom.json
-	PATH=/wigwag/system/lib/bash:$PATH  /wigwag/system/bin/json2sh \
+	PATH=$BASHLIB_DIR:$PATH  $BIN_DIR/json2sh \
     old_eeprom.json old_eeprom.sh
 	source ./old_eeprom.sh
 }
@@ -183,7 +185,7 @@ execute () {
       # Assume we are not in factory mode (either BYOC or developer)
       output "Creating developer self-signed certificate."
       findGatewayServiceAddressFromMDS
-      cd /wigwag/wwrelay-utils/debug_scripts/get_new_gw_identity/developer_gateway_identity
+      cd $SCRIPT_DIR/get_new_gw_identity/developer_gateway_identity
       ./bin/create-dev-identity -g $gatewayAddress -p DEV0 -o $OU
       mkdir /userdata/edge_gw_config
       cp identity.json /userdata/edge_gw_config/identity.json
@@ -192,7 +194,7 @@ execute () {
     if [ -f /userdata/edge_gw_config/identity.json ]; then
       output "Checking if deviceID is same..."
       if [ ! -f /userdata/edge_gw_config/identity.sh ]; then
-        PATH=/wigwag/system/lib/bash:$PATH /wigwag/system/bin/json2sh /userdata/edge_gw_config/identity.json /userdata/edge_gw_config/identity.sh
+        PATH=$BASHLIB_DIR:$PATH $BIN_DIR/json2sh /userdata/edge_gw_config/identity.json /userdata/edge_gw_config/identity.sh
       fi
       source /userdata/edge_gw_config/identity.sh
       if [[ $internalid == $deviceID ]]; then
