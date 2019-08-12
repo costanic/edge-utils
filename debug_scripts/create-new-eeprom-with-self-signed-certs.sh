@@ -36,24 +36,22 @@ SCRIPT_DIR="$WIGWAG_ROOT/wwrelay-utils/debug_scripts"
 I2C_DIR="$WIGWAG_ROOT/wwrelay-utils/I2C"
 export NODE_PATH="$WIGWAG_ROOT/devicejs-core-modules/node_modules/"
 
+temp_certs=$(mktemp -d)
+
 cleanup () {
-  cd $SCRIPT_DIR
-  rm edgestatus.json
-  rm edgestatus.sh
-  rm old_eeprom.json
-  rm old_eeprom.sh
-  rm -rf temp_certs
+  rm -rf $temp_certs
 }
 
 getEdgeStatus() {
-  curl localhost:9101/status > $SCRIPT_DIR/edgestatus.json
-  PATH=$BASHLIB_DIR:$PATH $BIN_DIR/json2sh \
-    edgestatus.json $SCRIPT_DIR/edgestatus.sh
-  source $SCRIPT_DIR/edgestatus.sh
+  DEST=$(mktemp -d)
+  curl localhost:9101/status > $DEST/status.json
+  PATH=$BASHLIB_DIR:$PATH $BIN_DIR/json2sh $DEST/status.json $DEST/status.sh
+  source $DEST/status.sh
+  rm -rf $DEST
 }
 
 createRootPrivateKey() {
-  openssl ecparam -out temp_certs/root_key.pem -name prime256v1 -genkey
+  openssl ecparam -out $temp_certs/root_key.pem -name prime256v1 -genkey
 }
 
 createRootCA() {
@@ -65,40 +63,40 @@ createRootCA() {
     echo 'keyUsage = digitalSignature,\
     keyCertSign, cRLSign';\
     echo '[ dn ]'\
-    ) > temp_certs/ca_config.cnf
-  ( cat temp_certs/ca_config.cnf;\
+    ) > $temp_certs/ca_config.cnf
+  ( cat $temp_certs/ca_config.cnf;\
     echo 'C=US';\
     echo 'ST=Texas';\
     echo 'L=Austin';\
     echo 'O=WigWag Inc';\
     echo 'CN=relays_wigwag.io_relay_ca';\
-    ) > temp_certs/root.cnf
-  openssl req -key temp_certs/root_key.pem -new -sha256 -x509 -days 12775\
-    -out temp_certs/root_cert.pem -config temp_certs/root.cnf -extensions ext
+    ) > $temp_certs/root.cnf
+  openssl req -key $temp_certs/root_key.pem -new -sha256 -x509 -days 12775\
+    -out $temp_certs/root_cert.pem -config $temp_certs/root.cnf -extensions ext
 }
 
 createIntermediatePrivateKey() {
-	openssl ecparam -out temp_certs/intermediate_key.pem -name prime256v1 -genkey
+	openssl ecparam -out $temp_certs/intermediate_key.pem -name prime256v1 -genkey
 }
 
 createIntermediateCA() {
-	( cat temp_certs/ca_config.cnf;\
+	( cat $temp_certs/ca_config.cnf;\
     echo 'C=US';\
     echo 'ST=Texas';\
     echo 'L=Austin';\
     echo 'O=WigWag Inc';\
     echo 'CN=relays_wigwag.io_relay_ca_intermediate';\
-    ) > temp_certs/int.cnf
-	openssl req -new -sha256 -key temp_certs/intermediate_key.pem \
-    -out temp_certs/intermediate_csr.pem  -config temp_certs/int.cnf
-	openssl x509 -sha256 -req -in temp_certs/intermediate_csr.pem \
-    -out temp_certs/intermediate_cert.pem -CA temp_certs/root_cert.pem \
-    -CAkey temp_certs/root_key.pem -days 7300 \
-    -extfile temp_certs/ca_config.cnf -extensions ext -CAcreateserial
+    ) > $temp_certs/int.cnf
+	openssl req -new -sha256 -key $temp_certs/intermediate_key.pem \
+    -out $temp_certs/intermediate_csr.pem  -config $temp_certs/int.cnf
+	openssl x509 -sha256 -req -in $temp_certs/intermediate_csr.pem \
+    -out $temp_certs/intermediate_cert.pem -CA $temp_certs/root_cert.pem \
+    -CAkey $temp_certs/root_key.pem -days 7300 \
+    -extfile $temp_certs/ca_config.cnf -extensions ext -CAcreateserial
 }
 
 createDevicePrivateKey() {
-	openssl ecparam -out temp_certs/device_private_key.pem -name prime256v1 -genkey
+	openssl ecparam -out $temp_certs/device_private_key.pem -name prime256v1 -genkey
 }
 
 createDeviceCertificate() {
@@ -112,21 +110,21 @@ createDeviceCertificate() {
     echo 'O=WigWag Inc';\
     echo "OU=$OU";\
     echo "CN=$internalid";\
-    ) > temp_certs/device.cnf
-	openssl req -key temp_certs/device_private_key.pem -new -sha256 \
-    -out temp_certs/device_csr.pem -config temp_certs/device.cnf
-	openssl x509 -sha256 -req -in temp_certs/device_csr.pem \
-    -out temp_certs/device_cert.pem -CA temp_certs/intermediate_cert.pem \
-    -CAkey temp_certs/intermediate_key.pem -days 7300 -extensions ext -CAcreateserial
+    ) > $temp_certs/device.cnf
+	openssl req -key $temp_certs/device_private_key.pem -new -sha256 \
+    -out $temp_certs/device_csr.pem -config $temp_certs/device.cnf
+	openssl x509 -sha256 -req -in $temp_certs/device_csr.pem \
+    -out $temp_certs/device_cert.pem -CA $temp_certs/intermediate_cert.pem \
+    -CAkey $temp_certs/intermediate_key.pem -days 7300 -extensions ext -CAcreateserial
 }
 
 readEeprom() {
-	cd $SCRIPT_DIR
+  DEST=$(mktemp)
 	output "Reading existing eeprom..."
-	cp /userdata/edge_gw_config/identity.json old_eeprom.json
 	PATH=$BASHLIB_DIR:$PATH  $BIN_DIR/json2sh \
-    old_eeprom.json old_eeprom.sh
-	source ./old_eeprom.sh
+    /userdata/edge_gw_config/identity.json $DEST
+	source $DEST
+  rm $DEST
 }
 
 findGatewayServiceAddressFromMDS() {
@@ -202,7 +200,6 @@ execute () {
     if [ "x$internalid" != "x$deviceID" ]; then
       output "Generating device keys using CN=$internalid, OU=$OU"
       cd $SCRIPT_DIR
-      mkdir temp_certs
       createRootPrivateKey
       createRootCA
       createIntermediatePrivateKey
