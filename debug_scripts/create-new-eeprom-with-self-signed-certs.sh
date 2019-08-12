@@ -137,13 +137,13 @@ readEeprom() {
 }
 
 findGatewayServiceAddressFromMDS() {
-  if [[ $lwm2mserveruri = *"mds-integration-lab"* ]]; then
+  if [ $lwm2mserveruri = *"mds-integration-lab"* ]; then
     gatewayAddress="https://gateways.mbedcloudintegration.net"
-  elif [[ $lwm2mserveruri = *"mds-systemtest"* ]]; then
+  elif [ $lwm2mserveruri = *"mds-systemtest"* ]; then
     gatewayAddress="https://gateways.mbedcloudstaging.net"
-  elif [[ $lwm2mserveruri = *"lwm2m.us-east-1"* ]]; then
+  elif [ $lwm2mserveruri = *"lwm2m.us-east-1"* ]; then
     gatewayAddress="https://gateways.us-east-1.mbedcloud.com"
-  elif [[ $lwm2mserveruri = *"lwm2m.ap-northeast-1"* ]]; then
+  elif [ $lwm2mserveruri = *"lwm2m.ap-northeast-1"* ]; then
     gatewayAddress="https://gateways.ap-northeast-1.mbedcloud.com"
   else
     gatewayAddress="https://unknown.mbedcloud.com"
@@ -153,7 +153,7 @@ findGatewayServiceAddressFromMDS() {
 burnEeprom() {
   cd $I2C_DIR
   node writeEEPROM.js $eeprom_file
-  if [[ $? != 0 ]]; then
+  if [ $? != 0 ]; then
     output "Failed to write eeprom. Trying again in 5 seconds..."
     sleep 5
     burnEeprom
@@ -180,7 +180,7 @@ restart_services() {
 
 execute () {
   OU=$(echo $lwm2mserveruri | cut -d'=' -f 2 | cut -d'&' -f 1)
-  if [[ $status == "connected" ]]; then
+  if [ "x$status" = "xconnected" ]; then
     output "Edge-core is connected..."
     if [ ! -f /userdata/edge_gw_config/identity.json ]; then
       # Assume we are not in factory mode (either BYOC or developer)
@@ -198,7 +198,7 @@ execute () {
         PATH=$BASHLIB_DIR:$PATH $BIN_DIR/json2sh /userdata/edge_gw_config/identity.json /userdata/edge_gw_config/identity.sh
       fi
       source /userdata/edge_gw_config/identity.sh
-      if [[ $internalid == $deviceID ]]; then
+      if [ "x$internalid" = "x$deviceID" ]; then
         output "EEPROM already has the same deviceID. No need for new eeprom."
         exit 0
       fi
@@ -206,7 +206,7 @@ execute () {
 
     readEeprom
 
-    if [[ $internalid != $deviceID ]]; then
+    if [ "x$internalid" != "x$deviceID" ]; then
       output "Generating device keys using CN=$internalid, OU=$OU"
       cd $SCRIPT_DIR
       mkdir temp_certs
@@ -216,12 +216,12 @@ execute () {
       createIntermediateCA
       createDevicePrivateKey
       createDeviceCertificate
-      if [[ $? -eq 0 ]]; then
+      if [ $? -eq 0 ]; then
         resetDatabase
         output "Creating new eeprom with new self signed certificate..."
         cd $SCRIPT_DIR
         node generate-new-eeprom.js $internalid
-        if [[ $? -eq 0 ]]; then
+        if [ $? -eq 0 ]; then
           cleanup
           output "Success. Writing the new eeprom."
           eeprom_file="$SCRIPT_DIR/new_eeprom.json"
