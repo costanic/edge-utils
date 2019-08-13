@@ -155,7 +155,6 @@ factoryReset() {
 }
 
 resetDatabase() {
-	cd $SCRIPT_DIR
 	output "Deleting gateway database"
 	rm -rf /userdata/etc/devicejs/db
 }
@@ -173,11 +172,12 @@ execute () {
       # Assume we are not in factory mode (either BYOC or developer)
       output "Creating developer self-signed certificate."
       findGatewayServiceAddressFromMDS
-      cd $SCRIPT_DIR/get_new_gw_identity/developer_gateway_identity
-      ./bin/create-dev-identity -g $gatewayAddress -p DEV0 -o $OU
-      mkdir /userdata/edge_gw_config
-      cp identity.json /userdata/edge_gw_config/identity.json
-      cp identity.json /userdata/edge_gw_config/identity_original.json
+      olddir=$PWD
+      mkdir -p /userdata/edge_gw_config
+      cd /userdata/edge_gw_config
+      $SCRIPT_DIR/get_new_gw_identity/developer_gateway_identity/bin/create-dev-identity -g $gatewayAddress -p DEV0 -o $OU
+      cp identity.json identity_original.json
+      cd $olddir
     fi
     if [ -f /userdata/edge_gw_config/identity.json ]; then
       output "Checking if deviceID is same..."
@@ -192,7 +192,6 @@ execute () {
 
     if [ "x$internalid" != "x$deviceID" ]; then
       output "Generating device keys using CN=$internalid, OU=$OU"
-      cd $SCRIPT_DIR
       createRootPrivateKey
       createRootCA
       createIntermediatePrivateKey
@@ -209,7 +208,6 @@ execute () {
           output "Success. Writing the new eeprom."
           eeprom_file="$SCRIPT_DIR/new_eeprom.json"
           burnEeprom
-          rm -rf $SCRIPT_DIR/new_eeprom.json
           /etc/init.d/deviceOS-watchdog start
           sleep 5
           restart_services
