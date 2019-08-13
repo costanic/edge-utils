@@ -43,11 +43,11 @@ cleanup () {
 }
 
 getEdgeStatus() {
-  DEST=$(mktemp -d)
-  curl localhost:9101/status > $DEST/status.json
-  PATH=$BASHLIB_DIR:$PATH $BIN_DIR/json2sh $DEST/status.json $DEST/status.sh
-  source $DEST/status.sh
-  rm -rf $DEST
+  curl localhost:9101/status > $temp_certs/status.json
+  status=$(jq -r .status $temp_certs/status.json)
+  internalid=$(jq -r .['"internal-id"'] $temp_certs/status.json)
+  lwm2mserveruri=$(jq -r .['"lwm2m-server-uri"'] $temp_certs/status.json)
+  OU=$(jq -r .['"account-id"'] $temp_certs/status.json)
 }
 
 createRootPrivateKey() {
@@ -119,12 +119,9 @@ createDeviceCertificate() {
 }
 
 readEeprom() {
-  DEST=$(mktemp)
-	output "Reading existing eeprom..."
-	PATH=$BASHLIB_DIR:$PATH  $BIN_DIR/json2sh \
-    /userdata/edge_gw_config/identity.json $DEST
-	source $DEST
-  rm $DEST
+  SRC=${1:-/userdata/edge_gw_config/identity.json}
+  deviceID=$(jq -r .deviceID $SRC)
+  OU=$(jq -r .OU $SRC)
 }
 
 findGatewayServiceAddressFromMDS() {
@@ -170,7 +167,6 @@ restart_services() {
 }
 
 execute () {
-  OU=$(echo $lwm2mserveruri | cut -d'=' -f 2 | cut -d'&' -f 1)
   if [ "x$status" = "xconnected" ]; then
     output "Edge-core is connected..."
     if [ ! -f /userdata/edge_gw_config/identity.json ]; then
@@ -185,10 +181,7 @@ execute () {
     fi
     if [ -f /userdata/edge_gw_config/identity.json ]; then
       output "Checking if deviceID is same..."
-      if [ ! -f /userdata/edge_gw_config/identity.sh ]; then
-        PATH=$BASHLIB_DIR:$PATH $BIN_DIR/json2sh /userdata/edge_gw_config/identity.json /userdata/edge_gw_config/identity.sh
-      fi
-      source /userdata/edge_gw_config/identity.sh
+      readEeprom
       if [ "x$internalid" = "x$deviceID" ]; then
         output "EEPROM already has the same deviceID. No need for new eeprom."
         exit 0
