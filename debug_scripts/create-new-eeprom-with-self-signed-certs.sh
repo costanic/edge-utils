@@ -30,6 +30,7 @@ error () {
 }
 
 WIGWAG_ROOT=${1:-"/wigwag"}
+EDGE_CORE_PORT=${2:-9101}
 BIN_DIR="$WIGWAG_ROOT/system/bin"
 BASHLIB_DIR="$WIGWAG_ROOT/system/lib/bash"
 SCRIPT_DIR="$WIGWAG_ROOT/wwrelay-utils/debug_scripts"
@@ -43,7 +44,7 @@ cleanup () {
 }
 
 getEdgeStatus() {
-  curl localhost:9101/status > $temp_certs/status.json
+  curl localhost:${EDGE_CORE_PORT}/status > $temp_certs/status.json
   status=$(jq -r .status $temp_certs/status.json)
   internalid=$(jq -r .['"internal-id"'] $temp_certs/status.json)
   lwm2mserveruri=$(jq -r .['"lwm2m-server-uri"'] $temp_certs/status.json)
