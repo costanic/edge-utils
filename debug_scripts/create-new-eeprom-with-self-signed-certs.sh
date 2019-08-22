@@ -173,17 +173,14 @@ execute () {
       # Assume we are not in factory mode (either BYOC or developer)
       output "Creating developer self-signed certificate."
       findGatewayServiceAddressFromMDS
-      olddir=$PWD
       mkdir -p ${IDENTITY_DIR}
-      cd ${IDENTITY_DIR}
       $SCRIPT_DIR/get_new_gw_identity/developer_gateway_identity/bin/create-dev-identity\
         -g $gatewayAddress\
         -p DEV0\
         -o $OU\
         --temp-cert-dir ${temp_certs}\
         --identity-dir ${IDENTITY_DIR}
-      cp identity.json identity_original.json
-      cd $olddir
+      cp ${IDENTITY_DIR}/identity.json ${IDENTITY_DIR}/identity_original.json
     fi
     if [ -f ${IDENTITY_DIR}/identity.json ]; then
       output "Checking if deviceID is same..."
