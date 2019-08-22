@@ -209,7 +209,7 @@ execute () {
         if [ $? -eq 0 ]; then
           cleanup
           output "Success. Writing the new eeprom."
-          eeprom_file="$SCRIPT_DIR/new_eeprom.json"
+          eeprom_file="${IDENTITY_DIR}/new_eeprom.json"
           burnEeprom
           /etc/init.d/deviceOS-watchdog start
           sleep 5
