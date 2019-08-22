@@ -25,14 +25,14 @@ const fs = require('fs');
 const IDGenerator = require('./IDgenerator');
 const program = require('commander');
 
-
 program
 	.version('1.0.0')
-    .option('-g, --gatewayServicesAddress []', 'The gateway services API address')
-    .option('-a, --apiServerAddress []', 'API server address')
-    .option('-p, --serialNumberPrefix []', 'Serial Number Prefix')
-    .option('-o, --organizationUnit []', 'Account ID')
-	.parse(process.argv);
+  .option('-g, --gatewayServicesAddress []', 'The gateway services API address')
+  .option('-a, --apiServerAddress []', 'API server address')
+  .option('-p, --serialNumberPrefix []', 'Serial Number Prefix')
+  .option('-o, --organizationUnit []', 'Account ID')
+  .option('--temp-cert-dir []', 'Directory that contains the temporary certs', './temp_certs')
+  .parse(process.argv);
 
 var validHostURI = /^(https\:\/\/)?((?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*(?:[A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]))$/;
 
@@ -161,16 +161,15 @@ const run = async() => {
             gatewayServicesAddress: program.gatewayServicesAddress
         };
 
-//    identity_obj = Object.assign({}, identity_obj, await gatewayAddressQuestion(), await apiAddressQuestion())
     identity_obj = Object.assign({}, identity_obj, addrs);
     identity_obj.cloudAddress = identity_obj.gatewayServicesAddress;
 
     identity_obj.ssl = {};
-    execSync('OU=' + identity_obj.OU + ' internalid=' + identity_obj.deviceID + ' ./generate_self_signed_certs.sh');
-    const device_key = fs.readFileSync('./temp_certs/device_private_key.pem', 'utf8');
-    const device_cert = fs.readFileSync('./temp_certs/device_cert.pem', 'utf8');
-    const root_cert = fs.readFileSync('./temp_certs/root_cert.pem', 'utf8');
-    const intermediate_cert = fs.readFileSync('./temp_certs/intermediate_cert.pem', 'utf8');
+    execSync('OU=' + identity_obj.OU + ' internalid=' + identity_obj.deviceID + ' ./generate_self_signed_certs.sh ' + program.tempCertDir);
+    const device_key = fs.readFileSync(program.tempCertDir + '/device_private_key.pem', 'utf8');
+    const device_cert = fs.readFileSync(program.tempCertDir + '/device_cert.pem', 'utf8');
+    const root_cert = fs.readFileSync(program.tempCertDir + '/root_cert.pem', 'utf8');
+    const intermediate_cert = fs.readFileSync(program.tempCertDir + '/intermediate_cert.pem', 'utf8');
 
     identity_obj.ssl.client = {};
     identity_obj.ssl.client.key = device_key;
@@ -184,7 +183,7 @@ const run = async() => {
     identity_obj.ssl.ca.ca = root_cert;
     identity_obj.ssl.ca.intermediate = intermediate_cert;
 
-    execSync('rm -rf ./temp_certs');
+    execSync('rm -rf ' + program.tempCertDir);
 
     console.log('Writing developer identity file with serialNumber=%s, identity.json', identity_obj.serialNumber);
     fs.writeFileSync('./identity.json', JSON.stringify(identity_obj, null, 4), 'utf8');

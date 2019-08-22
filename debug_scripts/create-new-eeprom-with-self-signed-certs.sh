@@ -176,7 +176,11 @@ execute () {
       olddir=$PWD
       mkdir -p ${IDENTITY_DIR}
       cd ${IDENTITY_DIR}
-      $SCRIPT_DIR/get_new_gw_identity/developer_gateway_identity/bin/create-dev-identity -g $gatewayAddress -p DEV0 -o $OU
+      $SCRIPT_DIR/get_new_gw_identity/developer_gateway_identity/bin/create-dev-identity\
+        -g $gatewayAddress\
+        -p DEV0\
+        -o $OU\
+        --temp-cert-dir ${temp_certs}
       cp identity.json identity_original.json
       cd $olddir
     fi
