@@ -33,6 +33,7 @@ program
   .option('-o, --organizationUnit []', 'Account ID')
   .option('--temp-cert-dir []', 'Directory that contains the temporary certs', './temp_certs')
   .option('--script-dir []', 'Directory that contains the generate_self_signed_certs.sh script', '.')
+  .option('--identity-dir []', 'Directory to place identity.json into', '.')
   .parse(process.argv);
 
 var validHostURI = /^(https\:\/\/)?((?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*(?:[A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]))$/;
@@ -184,7 +185,7 @@ const run = async() => {
     execSync('rm -rf ' + program.tempCertDir);
 
     console.log('Writing developer identity file with serialNumber=%s, identity.json', identity_obj.serialNumber);
-    fs.writeFileSync('./identity.json', JSON.stringify(identity_obj, null, 4), 'utf8');
+    fs.writeFileSync(program.identityDir + '/identity.json', JSON.stringify(identity_obj, null, 4), 'utf8');
     console.log('Success. Bye!');
 }
 

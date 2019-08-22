@@ -180,7 +180,8 @@ execute () {
         -g $gatewayAddress\
         -p DEV0\
         -o $OU\
-        --temp-cert-dir ${temp_certs}
+        --temp-cert-dir ${temp_certs}\
+        --identity-dir ${IDENTITY_DIR}
       cp identity.json identity_original.json
       cd $olddir
     fi
