@@ -14,8 +14,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-export NODE_PATH="/wigwag/devicejs-core-modules/node_modules/"
+export NODE_PATH=${NODE_PATH:-"/wigwag/devicejs-core-modules/node_modules/"}
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
