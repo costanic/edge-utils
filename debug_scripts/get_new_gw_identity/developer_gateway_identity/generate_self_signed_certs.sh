@@ -64,7 +64,7 @@ _createDeviceCertificate() {
 }
 
 generate_self_signed_certs() {
-	mkdir ${cert_dir}
+	mkdir -p ${cert_dir}
   _createRootPrivateKey
   _createRootCA
   _createIntermediatePrivateKey
