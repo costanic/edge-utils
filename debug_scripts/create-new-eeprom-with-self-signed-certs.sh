@@ -31,6 +31,7 @@ error () {
 
 WIGWAG_ROOT=${1:-"/wigwag"}
 EDGE_CORE_PORT=${2:-9101}
+IDENTITY_DIR=${3:-/userdata/edge_gw_config}
 BIN_DIR="$WIGWAG_ROOT/system/bin"
 BASHLIB_DIR="$WIGWAG_ROOT/system/lib/bash"
 SCRIPT_DIR="$WIGWAG_ROOT/wwrelay-utils/debug_scripts"
@@ -120,9 +121,8 @@ createDeviceCertificate() {
 }
 
 readEeprom() {
-  SRC=${1:-/userdata/edge_gw_config/identity.json}
-  deviceID=$(jq -r .deviceID $SRC)
-  OU=$(jq -r .OU $SRC)
+  deviceID=$(jq -r .deviceID ${IDENTITY_DIR}/identity.json)
+  OU=$(jq -r .OU ${IDENTITY_DIR}/identity.json)
 }
 
 findGatewayServiceAddressFromMDS() {
@@ -169,18 +169,18 @@ restart_services() {
 execute () {
   if [ "x$status" = "xconnected" ]; then
     output "Edge-core is connected..."
-    if [ ! -f /userdata/edge_gw_config/identity.json ]; then
+    if [ ! -f ${IDENTITY_DIR}/identity.json ]; then
       # Assume we are not in factory mode (either BYOC or developer)
       output "Creating developer self-signed certificate."
       findGatewayServiceAddressFromMDS
       olddir=$PWD
-      mkdir -p /userdata/edge_gw_config
-      cd /userdata/edge_gw_config
+      mkdir -p ${IDENTITY_DIR}
+      cd ${IDENTITY_DIR}
       $SCRIPT_DIR/get_new_gw_identity/developer_gateway_identity/bin/create-dev-identity -g $gatewayAddress -p DEV0 -o $OU
       cp identity.json identity_original.json
       cd $olddir
     fi
-    if [ -f /userdata/edge_gw_config/identity.json ]; then
+    if [ -f ${IDENTITY_DIR}/identity.json ]; then
       output "Checking if deviceID is same..."
       readEeprom
       if [ "x$internalid" = "x$deviceID" ]; then
