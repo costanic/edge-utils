@@ -204,8 +204,8 @@ execute () {
       if [ $? -eq 0 ]; then
         resetDatabase
         output "Creating new eeprom with new self signed certificate..."
-        cd $SCRIPT_DIR
-        node generate-new-eeprom.js $internalid
+        cd ${IDENTITY_DIR}
+        node $SCRIPT_DIR/generate-new-eeprom.js $internalid
         if [ $? -eq 0 ]; then
           cleanup
           output "Success. Writing the new eeprom."
