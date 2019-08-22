@@ -178,7 +178,7 @@ execute () {
         -g $gatewayAddress\
         -p DEV0\
         -o $OU\
-        --temp-cert-dir ${temp_certs}\
+        --temp-cert-dir $(mktemp -d)\
         --identity-dir ${IDENTITY_DIR}
       cp ${IDENTITY_DIR}/identity.json ${IDENTITY_DIR}/identity_original.json
     fi
