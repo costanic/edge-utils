@@ -32,6 +32,7 @@ program
   .option('-p, --serialNumberPrefix []', 'Serial Number Prefix')
   .option('-o, --organizationUnit []', 'Account ID')
   .option('--temp-cert-dir []', 'Directory that contains the temporary certs', './temp_certs')
+  .option('--script-dir []', 'Directory that contains the generate_self_signed_certs.sh script', '.')
   .parse(process.argv);
 
 var validHostURI = /^(https\:\/\/)?((?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*(?:[A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]))$/;
@@ -94,11 +95,7 @@ function apiAddressQuestion(_default) {
     }])
 }
 
-var addrs = {};
-
-var reGetBaseDomain = /https:\/\/[^\.]+\.(.*)/;
-
-var cleanupURL = function(answer) {
+function cleanupURL(answer) {
     var m = validHostURI.exec(answer);
     if (m && m.length > 2) {
         if (typeof m[1] != 'string' || m[1].length < 1) {
@@ -108,8 +105,9 @@ var cleanupURL = function(answer) {
     }    
 }
 
-async function confirmAddresses() {
+var addrs = {};
 
+async function confirmAddresses() {
     let ok = {confirmed: false};
     var ret = {};
     while (!ok.confirmed) {
@@ -165,7 +163,7 @@ const run = async() => {
     identity_obj.cloudAddress = identity_obj.gatewayServicesAddress;
 
     identity_obj.ssl = {};
-    execSync('OU=' + identity_obj.OU + ' internalid=' + identity_obj.deviceID + ' ./generate_self_signed_certs.sh ' + program.tempCertDir);
+    execSync('OU=' + identity_obj.OU + ' internalid=' + identity_obj.deviceID + ' ' +  program.scriptDir +'/generate_self_signed_certs.sh ' + program.tempCertDir);
     const device_key = fs.readFileSync(program.tempCertDir + '/device_private_key.pem', 'utf8');
     const device_cert = fs.readFileSync(program.tempCertDir + '/device_cert.pem', 'utf8');
     const root_cert = fs.readFileSync(program.tempCertDir + '/root_cert.pem', 'utf8');
