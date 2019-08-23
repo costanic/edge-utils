@@ -140,8 +140,7 @@ findGatewayServiceAddressFromMDS() {
 }
 
 burnEeprom() {
-  cd $I2C_DIR
-  node writeEEPROM.js $eeprom_file
+  node ${I2C_DIR}/writeEEPROM.js $eeprom_file
   if [ $? != 0 ]; then
     output "Failed to write eeprom. Trying again in 5 seconds..."
     sleep 5
@@ -150,9 +149,8 @@ burnEeprom() {
 }
 
 factoryReset() {
-  cd $SCRIPT_DIR
-  chmod 755 factory_wipe_gateway.sh
-  ./factory_wipe_gateway.sh
+  chmod 755 ${SCRIPT_DIR}/factory_wipe_gateway.sh
+  ${SCRIPT_DIR}/factory_wipe_gateway.sh
 }
 
 resetDatabase() {
@@ -161,9 +159,8 @@ resetDatabase() {
 }
 
 restart_services() {
-	cd $SCRIPT_DIR
-	chmod 755 reboot_edge_gw.sh
-	source ./reboot_edge_gw.sh
+	chmod 755 ${SCRIPT_DIR}/reboot_edge_gw.sh
+	source ${SCRIPT_DIR}/reboot_edge_gw.sh
 }
 
 execute () {
