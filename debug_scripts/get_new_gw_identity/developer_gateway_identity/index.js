@@ -30,10 +30,11 @@ program
   .option('-g, --gatewayServicesAddress []', 'The gateway services API address')
   .option('-a, --apiServerAddress []', 'API server address')
   .option('-p, --serialNumberPrefix []', 'Serial Number Prefix')
-  .option('-o, --organizationUnit []', 'Account ID')
+  .option('-o, --organizationUnit []', 'Account ID', uuid.v4().replace(/-/g, ""))
   .option('--temp-cert-dir []', 'Directory that contains the temporary certs', './temp_certs')
   .option('--script-dir []', 'Directory that contains the generate_self_signed_certs.sh script', '.')
   .option('--identity-dir []', 'Directory to place identity.json into', '.')
+  .option('--internal-id []', 'Device identity obtained from edge-core', generateRandomEUI())
   .parse(process.argv);
 
 var validHostURI = /^(https\:\/\/)?((?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*(?:[A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]))$/;
@@ -142,8 +143,8 @@ const run = async() => {
 
     let currentSerialNumber = crypto.randomBytes(2).readUInt16BE(0, true);
     identity_obj.serialNumber = IDGenerator.SerialIDGenerator(program.serialNumberPrefix || 'SOFT', currentSerialNumber, currentSerialNumber + 1);
-    identity_obj.OU = program.organizationUnit || uuid.v4().replace(/-/g, "");
-    identity_obj.deviceID = uuid.v4().replace(/-/g, "");
+    identity_obj.OU = program.organizationUnit;
+    identity_obj.deviceID = program.internalId;
     identity_obj.hardwareVersion = "rpi3bplus";
     identity_obj.radioConfig = "00";
     identity_obj.ledConfig = "01";
