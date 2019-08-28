@@ -32,10 +32,7 @@ error () {
 WIGWAG_ROOT=${1:-"/wigwag"}
 EDGE_CORE_PORT=${2:-9101}
 IDENTITY_DIR=${3:-/userdata/edge_gw_config}
-BIN_DIR="$WIGWAG_ROOT/system/bin"
-BASHLIB_DIR="$WIGWAG_ROOT/system/lib/bash"
 SCRIPT_DIR="$WIGWAG_ROOT/wwrelay-utils/debug_scripts"
-I2C_DIR="$WIGWAG_ROOT/wwrelay-utils/I2C"
 export NODE_PATH="$WIGWAG_ROOT/devicejs-core-modules/node_modules/"
 
 getEdgeStatus() {
@@ -49,17 +46,6 @@ getEdgeStatus() {
 
 readEeprom() {
   deviceID=$(jq -r .deviceID ${IDENTITY_DIR}/identity.json)
-}
-
-
-factoryReset() {
-  chmod 755 ${SCRIPT_DIR}/factory_wipe_gateway.sh
-  ${SCRIPT_DIR}/factory_wipe_gateway.sh
-}
-
-resetDatabase() {
-	output "Deleting gateway database"
-	rm -rf /userdata/etc/devicejs/db
 }
 
 execute () {
