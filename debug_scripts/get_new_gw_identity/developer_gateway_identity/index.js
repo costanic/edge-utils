@@ -138,6 +138,25 @@ function generateRandomEUI() {
     return [crypto.randomBytes(1)[0], crypto.randomBytes(1)[0], crypto.randomBytes(1)[0]];
 }
 
+
+function findGatewayServiceAddressFromMDS(server_uri) {
+    var integrationLab = /.*mds-integration-lab.*/;
+    var systemtest = /.*mds-systemtest.*/;
+    var usEast = /.*lwm2m.us-east-1.*/;
+    var apNortheast = /.*lwm2m.ap-northeast-1.*/;
+    if (integrationLab.exec(server_uri)) {
+        return "https://gateways.mbedcloudintegration.net";
+    } else if (systemtest.exec(server_uri)) {
+        return "https://gateways.mbedcloudstaging.net";
+    } else if (usEast.exec(server_uri)) {
+        return "https://gateways.us-east-1.mbedcloud.com";
+    } else if (apNortheast.exec(server_uri)) {
+        return "https://gateways.ap-northeast-1.mbedcloud.com";
+    } else {
+        return "https://unknown.mbedcloud.com";
+    }
+}
+
 const run = async() => {
     let identity_obj = {};
 
@@ -158,7 +177,7 @@ const run = async() => {
         addrs = await confirmAddresses();
     else
         addrs = {
-            gatewayServicesAddress: program.gatewayServicesAddress
+            gatewayServicesAddress: findGatewayServiceAddressFromMDS(program.gatewayServicesAddress)
         };
 
     identity_obj = Object.assign({}, identity_obj, addrs);

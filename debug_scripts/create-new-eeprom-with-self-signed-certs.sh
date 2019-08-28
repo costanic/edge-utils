@@ -51,21 +51,6 @@ readEeprom() {
   deviceID=$(jq -r .deviceID ${IDENTITY_DIR}/identity.json)
 }
 
-# TODO: move this into the index.js
-findGatewayServiceAddressFromMDS() {
-  host_part=$(echo $lwm2mserveruri | cut -d: -f 2)
-  if [ $host_part = *"mds-integration-lab"* ]; then
-    gatewayAddress="https://gateways.mbedcloudintegration.net"
-  elif [ $host_part = *"mds-systemtest"* ]; then
-    gatewayAddress="https://gateways.mbedcloudstaging.net"
-  elif [ $host_part = *"lwm2m.us-east-1"* ]; then
-    gatewayAddress="https://gateways.us-east-1.mbedcloud.com"
-  elif [ $host_part = *"lwm2m.ap-northeast-1"* ]; then
-    gatewayAddress="https://gateways.ap-northeast-1.mbedcloud.com"
-  else
-    gatewayAddress="https://unknown.mbedcloud.com"
-  fi
-}
 
 factoryReset() {
   chmod 755 ${SCRIPT_DIR}/factory_wipe_gateway.sh
@@ -83,13 +68,12 @@ execute () {
     readEeprom
     if [ ! -f ${IDENTITY_DIR}/identity.json -o  "x$internalid" != "x$deviceID"  ]; then
       output "Creating developer self-signed certificate."
-      findGatewayServiceAddressFromMDS
       mkdir -p ${IDENTITY_DIR}
       if [ -f ${IDENTITY_DIR}/identity.json ] ; then 
         cp ${IDENTITY_DIR}/identity.json ${IDENTITY_DIR}/identity_original.json
       fi
       $SCRIPT_DIR/get_new_gw_identity/developer_gateway_identity/bin/create-dev-identity\
-        -g $gatewayAddress\
+        -g $lwm2mserveruri\
         -p DEV0\
         -o $OU\
         --temp-cert-dir $(mktemp -d)\
