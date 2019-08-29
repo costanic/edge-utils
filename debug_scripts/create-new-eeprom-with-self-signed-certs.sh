@@ -32,8 +32,8 @@ error () {
 WIGWAG_ROOT=${1:-"/wigwag"}
 EDGE_CORE_PORT=${2:-9101}
 IDENTITY_DIR=${3:-/userdata/edge_gw_config}
-SCRIPT_DIR="$WIGWAG_ROOT/wwrelay-utils/debug_scripts"
-export NODE_PATH="$WIGWAG_ROOT/devicejs-core-modules/node_modules/"
+SCRIPT_DIR=${1:-"/wigwag/wwrelay-utils/debug_scripts"}
+export NODE_PATH=${NODE_PATH:-"$SCRIPT_DIR/../../devicejs-core-modules/node_modules/"}
 
 getEdgeStatus() {
   tmpfile=$(mktemp)
