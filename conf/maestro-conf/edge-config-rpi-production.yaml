@@ -237,6 +237,30 @@ container_templates:
         {
            "debug":true
         }
+   - name: "ble_node_process"
+     immutable: true  # don't store in DB
+     depends_on:
+        - "devicejs"
+     cgroup:                 # will implement later
+        mem_limit: 10000000
+     die_on_parent_death: true
+     inherit_env: true
+     add_env:
+        - "LD_PRELOAD=/usr/lib/libcrypto.so.1.0.2"
+        - "DEVJS_ROOT={{DEVICEJS_ROOT}}"
+        - "DEVJS_CONFIG_FILE=/wigwag/etc/devicejs/devicejs.conf"
+        - "NODE_PATH={{WIGWAG_NODE_PATH}}"
+     exec_cmd: "{{NODE_EXEC}}"        # will use PATH if not absolute path (as per execvp())
+     send_composite_jobs_to_stdin: true
+     send_grease_origin_id: true
+     exec_pre_args:
+        - "--max-old-space-size=1024"
+        - "--max-semi-space-size=1"
+        - "{{MAESTRO_RUNNER_DIR}}/index.js"
+     composite_config: >
+        {
+           "debug":true
+        }
    - name: "node_process"
      die_on_parent_death: true
      immutable: true  # don't store in DB
@@ -368,6 +392,23 @@ jobs:
           "deviceControllersDirectory": "templates",
           "hideTemplates": [ "VideoCamera" ],
           "logLevel": 1
+        }
+   - job: "bluetoothlowenergy"
+     immutable: true  # don't store in DB
+     exec_cmd: "${thisdir}/../bluetoothlowenergy"
+     container_template: "ble_node_process"
+     composite_id: "ble"
+     restart: true
+     restart_limit: 5000
+     restart_pause: 90
+     config: |
+        {
+          "hciDeviceID": 0,
+          "version": "1.0.2",
+          "logLevel": 5,
+          "activityLength": 100,
+          "platform":"",
+          "serialNumber": "{{ARCH_SERIAL_NUMBER}}"
         }
    - job: "zigbeeHA"
      immutable: true  # don't store in DB
