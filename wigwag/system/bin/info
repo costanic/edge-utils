@@ -143,9 +143,9 @@ system() {
 	IPADDRESS=$(ifconfig  | grep 'inet addr:'| grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $1}')
 	test -e /lib/systemd/system/deviceos-wd.service
 	local dwd_file=$?
-	systemctrl is-active --quiet deviceos-wd.service
+	systemctl is-active --quiet deviceos-wd.service
 	local dwd_active=$?
-	systemctrl is-enabled --quiet deviceos-wd.service
+	systemctl is-enabled --quiet deviceos-wd.service
 	local dwd_enabled=$?
 	if [[ $dwd_active -eq 0 ]]; then
 		WDOGPID="active"
