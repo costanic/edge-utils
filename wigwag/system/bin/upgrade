@@ -34,11 +34,16 @@ source ccommon.sh nofunc
 source /wigwag/system/lib/bash/array.sh
 
 
-cpu=$(cat /proc/cpuinfo | grep Hardware | awk '{print $5$3}')
-revision=$(cat /proc/cpuinfo | grep Revision | awk '{print $3}')
+# Reference - https://www.raspberrypi.org/documentation/hardware/raspberrypi/revision-codes/README.md
+# As of the 4.9 kernel, all Pis report BCM2835, even those with BCM2836, BCM2837 
+# and BCM2711 processors. You should not use this string to detect the processor.
+# Decode the revision code using the information below, or  
+# cat /sys/firmware/devicetree/base/model
+
 if [[ $cpu = "(A20)" ]]; then
 	board=cubietruck
-elif [ $cpu = "BCM2835" ] && [ $revision = "a020d3" ]; then #Raspberry Pi 3B+ revision and hardware
+elif [[ $(cat /sys/firmware/devicetree/base/model) \
+	== "Raspberry Pi 3 Model B+" ]]; then #Raspberry Pi 3B+ revision and hardware
 	board=rpi
 else
 	board=""
