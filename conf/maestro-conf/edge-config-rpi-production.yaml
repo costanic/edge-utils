@@ -122,7 +122,9 @@ targets:
      format_post: "\"},"
      flag_json_escape_strings: true
      filters:
-       - levels: all
+       - levels: warn
+         format_pre: "{"     # you will wrap this output with { "log": [ OUTPUT ] }
+       - levels: error
          format_pre: "{"     # you will wrap this output with { "log": [ OUTPUT ] }
 static_file_generators:
    - name: "devicejs"
