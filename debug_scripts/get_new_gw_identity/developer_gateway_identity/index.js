@@ -140,18 +140,26 @@ function generateRandomEUI() {
 
 
 function findGatewayServiceAddressFromMDS(server_uri) {
+    return findServiceAddressFromMDS(server_uri, "gateways")
+}
+
+function findEdgeK8sServiceAddressFromMDS(server_uri) {
+    return findServiceAddressFromMDS(server_uri, "edge-k8s")
+}
+
+function findServiceAddressFromMDS(server_uri, service_name) {
     var integrationLab = /.*mds-integration-lab.*/;
     var systemtest = /.*mds-systemtest.*/;
     var usEast = /.*lwm2m.us-east-1.*/;
     var apNortheast = /.*lwm2m.ap-northeast-1.*/;
     if (integrationLab.exec(server_uri)) {
-        return "https://gateways.mbedcloudintegration.net";
+        return "https://" + service_name + ".mbedcloudintegration.net";
     } else if (systemtest.exec(server_uri)) {
-        return "https://gateways.mbedcloudstaging.net";
+        return "https://" + service_name + ".mbedcloudstaging.net";
     } else if (usEast.exec(server_uri)) {
-        return "https://gateways.us-east-1.mbedcloud.com";
+        return "https://" + service_name + ".us-east-1.mbedcloud.com";
     } else if (apNortheast.exec(server_uri)) {
-        return "https://gateways.ap-northeast-1.mbedcloud.com";
+        return "https://" + service_name + ".ap-northeast-1.mbedcloud.com";
     } else {
         return "https://unknown.mbedcloud.com";
     }
@@ -177,7 +185,8 @@ const run = async() => {
         addrs = await confirmAddresses();
     else
         addrs = {
-            gatewayServicesAddress: findGatewayServiceAddressFromMDS(program.gatewayServicesAddress)
+            gatewayServicesAddress: findGatewayServiceAddressFromMDS(program.gatewayServicesAddress),
+            edgek8sServicesAddress: findEdgeK8sServiceAddressFromMDS(program.gatewayServicesAddress)
         };
 
     identity_obj = Object.assign({}, identity_obj, addrs);
