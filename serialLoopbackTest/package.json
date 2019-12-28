@@ -19,7 +19,7 @@
         "es6-promise": "^3.0.2",
         "mkdirp": "^0.5.1",
         "promise": "^7.0.4",
-        "handlebars": "4.0.5",
+        "handlebars": "4.3.0",
         "colors": "1.1.2",
         "underscore": "*",
         "jsonschema": "1.0.1",
