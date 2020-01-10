@@ -10,6 +10,14 @@ watchdog:
     path: "/snap/pelion-edge/current/wigwag/system/lib/rp100wd.so"
     opt1: "/var/lib/pelion-edge/deviceOSkeepalive"
     opt2: "30"
+network:
+    interfaces:
+        - if_name: eth0
+          existing: replace
+          dhcpv4: false
+          ipv4_addr: 10.123.123.123
+          ipv4_mask: 24
+          hw_addr: "{{ARCH_ETHERNET_MAC}}"
 processes:
     reaper_interval: 1500
 platform_readers:
@@ -57,6 +65,12 @@ var_defs:
      value: "{{SNAP}}/wigwag/etc/versions.json"
    - key: "UPGRADE_VERSIONS_FILE"
      value: "{{SNAP}}/wigwag/etc/versions.json"
+devicedb_conn_config:
+    devicedb_uri: "https://{{ARCH_DEVICE_ID}}:9000" #default uri
+    devicedb_prefix: "maestro.configs" #default prefix
+    devicedb_bucket: "lww" #default bucket
+    relay_id: "{{ARCH_DEVICE_ID}}" #default relay id
+    ca_chain: "{{SSL_CERTS_PATH}}/ca-chain.cert.pem" #default chain cert file name     
 sys_stats: # system stats intervals
   vm_stats:
     every: "15s"
