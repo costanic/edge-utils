@@ -13,7 +13,7 @@
     "es6-promise": "~2.0.1",
     "execSync": "~1.0.2",
     "flat": "~1.5.1",
-    "handlebars": "4.0.5",
+    "handlebars": "4.7.2",
     "i2c": "git://github.com/armPelionEdge/node-i2c",
     "jsonminify": "^0.2.3",
     "linux-mountutils": "^1.0.0",
