@@ -15,20 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-bold=$(tput bold)
-red=$(tput setaf 1)
-green=$(tput setaf 2)
-normal=$(tput sgr0)
-
-output () {
-  echo "${green}"$1"${normal}"
-}
-
-error () {
-  echo "${red}"$1"${normal}"
-	exit 1
-}
-
 WIGWAG_ROOT=${1:-"/wigwag"}
 EDGE_CORE_PORT=${2:-9101}
 IDENTITY_DIR=${3:-/userdata/edge_gw_config}
@@ -50,10 +36,10 @@ readEeprom() {
 
 execute () {
   if [ "x$status" = "xconnected" ]; then
-    output "Edge-core is connected..."
+    echo "Edge-core is connected..."
     readEeprom
     if [ ! -f ${IDENTITY_DIR}/identity.json -o  "x$internalid" != "x$deviceID"  ]; then
-      output "Creating developer self-signed certificate."
+      echo "Creating developer self-signed certificate."
       mkdir -p ${IDENTITY_DIR}
       if [ -f ${IDENTITY_DIR}/identity.json ] ; then 
         cp ${IDENTITY_DIR}/identity.json ${IDENTITY_DIR}/identity_original.json
@@ -67,7 +53,7 @@ execute () {
         --internal-id $internalid
     fi
   else
-    error "Edge-core is not connected yet. Its status is- $status. Exited with code $?."
+    echo "Error: edge-core is not connected yet. Its status is- $status. Exited with code $?."
   fi
 }
 
