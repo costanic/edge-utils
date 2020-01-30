@@ -17,19 +17,6 @@
 
 cert_dir=${1:-temp_certs}
 
-bold=$(tput bold)
-red=`tput setaf 1`
-green=`tput setaf 2`
-normal=$(tput sgr0)
-output () {
-  echo "${green}"$1"${normal}"
-}
-
-error () {
-  echo "${red}"$1"${normal}"
-	exit 1
-}
-
 cleanup () {
 	rm -rf ${cert_dir}
 }
@@ -64,13 +51,13 @@ _createDeviceCertificate() {
 }
 
 generate_self_signed_certs() {
-	mkdir -p ${cert_dir}
-  _createRootPrivateKey
-  _createRootCA
-  _createIntermediatePrivateKey
-  _createIntermediateCA
-  _createDevicePrivateKey
-  _createDeviceCertificate
+    mkdir -p ${cert_dir}
+    _createRootPrivateKey
+    _createRootCA
+    _createIntermediatePrivateKey
+    _createIntermediateCA
+    _createDevicePrivateKey
+    _createDeviceCertificate
 }
 
 generate_self_signed_certs
