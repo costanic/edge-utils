@@ -1,5 +1,5 @@
 unixLogSocket: /tmp/grease.socket
-sysLogSocket: /run/systemd/journal/syslog
+sysLogSocket: /run/systemd/journal/dev-log
 linuxKernelLog: false
 httpUnixSocket: /tmp/maestroapi.sock
 configDBPath: "{{SNAP_DATA}}/userdata/etc/maestroConfig.db"
